@@ -74,6 +74,7 @@ func ProvideHandlers(
 	openaiGatewayHandler *OpenAIGatewayHandler,
 	settingHandler *SettingHandler,
 	totpHandler *TotpHandler,
+	publicHandler *PublicHandler,
 ) *Handlers {
 	return &Handlers{
 		Auth:          authHandler,
@@ -88,6 +89,7 @@ func ProvideHandlers(
 		OpenAIGateway: openaiGatewayHandler,
 		Setting:       settingHandler,
 		Totp:          totpHandler,
+		Public:        publicHandler,
 	}
 }
 
@@ -104,6 +106,7 @@ var ProviderSet = wire.NewSet(
 	NewGatewayHandler,
 	NewOpenAIGatewayHandler,
 	NewTotpHandler,
+	NewPublicHandler,
 	ProvideSettingHandler,
 
 	// Admin handlers

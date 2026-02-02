@@ -636,6 +636,43 @@ func (r *usageLogRepository) GetAPIKeyStatsAggregated(ctx context.Context, apiKe
 	return &stats, nil
 }
 
+// GetAPIKeyDetailedStatsAggregated returns aggregated usage statistics for an API key with separate cache token fields
+func (r *usageLogRepository) GetAPIKeyDetailedStatsAggregated(ctx context.Context, apiKeyID int64, startTime, endTime time.Time) (*usagestats.DetailedUsageStats, error) {
+	query := `
+		SELECT
+			COUNT(*) as total_requests,
+			COALESCE(SUM(input_tokens), 0) as total_input_tokens,
+			COALESCE(SUM(output_tokens), 0) as total_output_tokens,
+			COALESCE(SUM(cache_creation_tokens), 0) as total_cache_creation_tokens,
+			COALESCE(SUM(cache_read_tokens), 0) as total_cache_read_tokens,
+			COALESCE(SUM(total_cost), 0) as total_cost,
+			COALESCE(SUM(actual_cost), 0) as total_actual_cost,
+			COALESCE(AVG(COALESCE(duration_ms, 0)), 0) as avg_duration_ms
+		FROM usage_logs
+		WHERE api_key_id = $1 AND created_at >= $2 AND created_at < $3
+	`
+
+	var stats usagestats.DetailedUsageStats
+	if err := scanSingleRow(
+		ctx,
+		r.sql,
+		query,
+		[]any{apiKeyID, startTime, endTime},
+		&stats.TotalRequests,
+		&stats.TotalInputTokens,
+		&stats.TotalOutputTokens,
+		&stats.TotalCacheCreationTokens,
+		&stats.TotalCacheReadTokens,
+		&stats.TotalCost,
+		&stats.TotalActualCost,
+		&stats.AverageDurationMs,
+	); err != nil {
+		return nil, err
+	}
+	stats.TotalTokens = stats.TotalInputTokens + stats.TotalOutputTokens + stats.TotalCacheCreationTokens + stats.TotalCacheReadTokens
+	return &stats, nil
+}
+
 // GetAccountStatsAggregated 使用 SQL 聚合统计账号使用数据
 //
 // 性能优化说明：

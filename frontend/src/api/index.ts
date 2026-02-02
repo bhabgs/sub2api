@@ -21,5 +21,12 @@ export { default as announcementsAPI } from './announcements'
 // Admin APIs
 export { adminAPI } from './admin'
 
+// Public APIs (no authentication required)
+export {
+  publicAPI,
+  type PublicUsageStatsParams,
+  type PublicUsageStatsResponse
+} from './public'
+
 // Default export
 export { default } from './client'
