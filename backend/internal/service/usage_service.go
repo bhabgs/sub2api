@@ -220,6 +220,39 @@ func (s *UsageService) GetStatsByAPIKey(ctx context.Context, apiKeyID int64, sta
 	}, nil
 }
 
+// DetailedUsageStats 详细使用统计（包含分开的缓存 token 字段）
+type DetailedUsageStats struct {
+	TotalRequests            int64   `json:"total_requests"`
+	TotalInputTokens         int64   `json:"total_input_tokens"`
+	TotalOutputTokens        int64   `json:"total_output_tokens"`
+	TotalCacheCreationTokens int64   `json:"total_cache_creation_tokens"`
+	TotalCacheReadTokens     int64   `json:"total_cache_read_tokens"`
+	TotalTokens              int64   `json:"total_tokens"`
+	TotalCost                float64 `json:"total_cost"`
+	TotalActualCost          float64 `json:"total_actual_cost"`
+	AverageDurationMs        float64 `json:"average_duration_ms"`
+}
+
+// GetDetailedStatsByAPIKey 获取API Key的详细使用统计（包含分开的缓存 token 字段）
+func (s *UsageService) GetDetailedStatsByAPIKey(ctx context.Context, apiKeyID int64, startTime, endTime time.Time) (*DetailedUsageStats, error) {
+	stats, err := s.usageRepo.GetAPIKeyDetailedStatsAggregated(ctx, apiKeyID, startTime, endTime)
+	if err != nil {
+		return nil, fmt.Errorf("get api key detailed stats: %w", err)
+	}
+
+	return &DetailedUsageStats{
+		TotalRequests:            stats.TotalRequests,
+		TotalInputTokens:         stats.TotalInputTokens,
+		TotalOutputTokens:        stats.TotalOutputTokens,
+		TotalCacheCreationTokens: stats.TotalCacheCreationTokens,
+		TotalCacheReadTokens:     stats.TotalCacheReadTokens,
+		TotalTokens:              stats.TotalTokens,
+		TotalCost:                stats.TotalCost,
+		TotalActualCost:          stats.TotalActualCost,
+		AverageDurationMs:        stats.AverageDurationMs,
+	}, nil
+}
+
 // GetStatsByAccount 获取账号的使用统计
 func (s *UsageService) GetStatsByAccount(ctx context.Context, accountID int64, startTime, endTime time.Time) (*UsageStats, error) {
 	stats, err := s.usageRepo.GetAccountStatsAggregated(ctx, accountID, startTime, endTime)

@@ -1558,6 +1558,10 @@ func (r *stubUsageLogRepo) GetAPIKeyStatsAggregated(ctx context.Context, apiKeyI
 	return nil, errors.New("not implemented")
 }
 
+func (r *stubUsageLogRepo) GetAPIKeyDetailedStatsAggregated(ctx context.Context, apiKeyID int64, startTime, endTime time.Time) (*usagestats.DetailedUsageStats, error) {
+	return nil, errors.New("not implemented")
+}
+
 func (r *stubUsageLogRepo) GetAccountStatsAggregated(ctx context.Context, accountID int64, startTime, endTime time.Time) (*usagestats.UsageStats, error) {
 	return nil, errors.New("not implemented")
 }
